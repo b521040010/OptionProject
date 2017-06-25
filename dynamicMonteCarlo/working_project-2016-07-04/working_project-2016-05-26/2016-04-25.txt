@@ -1,4 +1,0 @@
-I fixed a BUG.
-S0x<W 
-to compute indifference Prices we will add priceGuess to W
-but it turns out that it just use priceGuess instead of W
