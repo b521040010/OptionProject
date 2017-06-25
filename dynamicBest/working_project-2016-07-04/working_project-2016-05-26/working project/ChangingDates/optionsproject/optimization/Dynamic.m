@@ -205,13 +205,14 @@ classdef Dynamic < matlab.mixin.Copyable
         end
         
         function plotMarkToMarket(o)
-            date=o.dateString;
-            mark=zeros(1,length(date));
+            date=o.dateString
+            mark=zeros(1,size(date,1));
             port= o.histPort.(date(1,:));
             mark(1)=port.computeMarkToMarket;
-            spot(1)= o.histSpot.(date(1,:));
-            for i=2:length(date)
-                port=o.histPort.(date(i,:));
+            spot(1)= o.histSpot.(date(1,:))
+            
+            for i=2:size(date,1)
+                port=o.histPort.(date(i,:))
                 mark(i)=port.computeMarkToMarket;
                 spot(i)= o.histSpot.(date(i,:));
             end
