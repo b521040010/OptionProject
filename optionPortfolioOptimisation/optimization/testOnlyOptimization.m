@@ -21,10 +21,10 @@ function utility=testOnlyOptimization()
      model.sigma=0.0553835;
 
      model.mu=0.0173861+log(model.S0);
-%     model.nu=4.83548;
-     model.nu=10;
-    arbitrage = ArbitrageFinder.findArbitrageForDate( date, false, true );
-    assert(~arbitrage);    
+     model.nu=4.83548;
+   %  model.nu=10;
+   % arbitrage = ArbitrageFinder.findArbitrageForDate( date, false, true );
+   % assert(~arbitrage);    
     % Create a utility maximization problem corresponding
     % to this problem
     ump = UtilityMaximizationProblem1D();
@@ -54,7 +54,7 @@ function utility=testOnlyOptimization()
     [utility, quantities] = ump.optimize();
     
     ump.plotPortfolio( sprintf('Net profit of the portfolio invested on %s. Utility=%d', date,utility),quantities);
-    %plotPortfolio( ump.getInstruments(), quantities);
+    plotPortfolio( ump.getInstruments(), quantities);
 %     
 %     %Test if buying and selling quantities are in [-bidSizes,askSizes]
 %     for idx=1:length(ump.instruments)
