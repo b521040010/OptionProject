@@ -17,7 +17,8 @@ classdef BlackScholesModel < Model1D
        
         function [S, times] = simulatePricePaths( model, nPaths, nSteps )
             dt = model.T/nSteps;
-            dW = randn( nPaths, nSteps );
+            dW = randn( nPaths/2, nSteps );
+            dW = [dW ; -dW];
             ds = (model.mu - 0.5*model.sigma^2)*dt + model.sigma*sqrt(dt)*dW;
             s = log( model.S0 ) + cumsum(ds,2);
             S = horzcat(model.S0*ones(nPaths,1),exp(s));
