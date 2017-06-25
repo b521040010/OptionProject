@@ -1,2 +1,0 @@
-function chooseInvestments( marketData )
-end
