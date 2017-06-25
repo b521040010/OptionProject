@@ -1,0 +1,10 @@
+mu=0.1;
+sigma=[0.05:0.005:0.35];
+%sigma=0.35
+%T=0.1918;
+T=1;
+%T=[0.5:0.01:1.5]
+x=100000;
+alpha=0.00002;
+beta=0.5*mu^2./(alpha*sigma.^2);
+v=(1-exp(-alpha*x)*exp(-alpha*beta*T))'/alpha;

@@ -1,0 +1,13 @@
+meclassdef ExponentialUtility
+    properties
+        lambda;
+    end
+    methods
+        function o=ExponentialUtility(lambda)
+            o.lambda=lambda;
+        end
+        function expectedUtility=computeExpectedUtility(o,x)
+            expectedUtility=mean(-exp(-o.lambda*x));
+        end
+    end
+end
