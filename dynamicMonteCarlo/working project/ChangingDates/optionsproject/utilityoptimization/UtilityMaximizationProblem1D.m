@@ -225,14 +225,15 @@ classdef UtilityMaximizationProblem1D < matlab.mixin.Copyable
                 delegate= UtilityMaximizationProblem();
 
                 % Choose a good quadrature rule
-%                 wayPoints = o.getWayPoints();
+%                 wayPoints = o.getWayPoints()
 %                 quadRule = QuadRule.adapted( @(x) o.model.pdf(x), wayPoints, o.model.getWayPoints() );
 %                 x = quadRule.x;
 %                 lp = log(quadRule.weights) + o.model.logPdf(x);
 %                 delegate.setQuadRule( x, lp );  
                 
 %                 o.model
-                prices = o.model.simulatePricePaths(30000,1);
+
+                prices = o.model.simulatePricePaths(100000,1);
                 scenarios = prices(:,end);
                 scenarios = sort(scenarios);
                 wayPoints = scenarios;

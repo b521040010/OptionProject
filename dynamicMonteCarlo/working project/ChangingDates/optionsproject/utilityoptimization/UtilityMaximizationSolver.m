@@ -141,8 +141,14 @@ classdef UtilityMaximizationSolver < handle
 %             S0erT=o.costVec*exp(r*T);
 %             S0erT=repmat(S0erT,o.nP,1);
 %             size(S0erT);
-            A = horzcat(-o.payoff, eye(o.nP));
-            size(A);
+            matr=sparse(o.nP,o.nP);
+            for i=1:o.nP
+                matr(i,i)=1;
+            end
+            payy=sparse(o.payoff);
+            A = horzcat(-payy, matr);
+            %A = horzcat(-o.payoff, matr);
+            %A = horzcat(-o.payoff, eye(o.nP));
             %%%%%%%%%%%%%%%%%%%%%
 %             A = horzcat(-o.payoff, eye(o.nP), zeros(o.nP));
             logProb = o.p.logProb(o.scenarioFilter);
