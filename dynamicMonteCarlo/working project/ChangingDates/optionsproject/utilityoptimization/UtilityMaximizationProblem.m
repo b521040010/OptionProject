@@ -204,20 +204,23 @@ classdef UtilityMaximizationProblem < matlab.mixin.Copyable
             % Get an accurate quadrature rule adapted to this problem
             nInstruments = length(o.instruments);
             wayPoints = [];
-%             for i=1:nInstruments
-%                 instrument = o.instruments{i};
-%                 wayPoints = horzcat(wayPoints,instrument.getWayPoints());
-%             end
-%             wayPoints = horzcat( wayPoints, o.currentPosition.getWayPoints());
-%             quadRule = QuadRule.adapted( wayPoints, o.model.getWayPoints() );
-%             x = quadRule.x;
-            prices = model.simulatePricePaths(10000,1);
-            scenarios = prices(:,end);
-            wayPoints = scenarios';
-            x = wayPoints;
-            weight = (1/length(wayPoints))*ones(1,length(wayPoints));
-           % lp = log(weight) + model.logProb(wayPoints);
-           lp = log(weight)
+            for i=1:nInstruments
+                instrument = o.instruments{i};
+                wayPoints = horzcat(wayPoints,instrument.getWayPoints());
+            end
+            wayPoints = horzcat( wayPoints, o.currentPosition.getWayPoints());
+            quadRule = QuadRule.adapted( wayPoints, o.model.getWayPoints() );
+            x = quadRule.x;
+            lp = log(weight) + model.logProb(wayPoints)
+
+%             prices = model.simulatePricePaths(10000,1);
+%             scenarios = prices(:,end);
+%             wayPoints = scenarios';
+%             x = wayPoints;
+%             weight = (1/length(wayPoints))*ones(1,length(wayPoints));
+%             lp = log(weight)
+          
+            
             o.setQuadRule( x, lp );
         end
 
@@ -260,16 +263,13 @@ classdef UtilityMaximizationProblem < matlab.mixin.Copyable
             end
         end
         
-        function [utility,quantities] = optimize(o)
+        function [utility,quantities,qp] = optimize(o)
             % Solve the optimization problem returning the expected
             % utility and the quantities that must be held. The first
             % task is to form an equivalent problem with good scaling
             % behaviour.
 %             
-%             [scaledProblem, scale] = o.createScaledProblem();
-%             [utility,scaledQuantities] = scaledProblem.optimizeUnscaled();
-%             quantities = scaledQuantities .* scale;
-             [utility,quantities] = o.optimizeUnscaled();
+             [utility,quantities,qp] = o.optimizeUnscaled();
         end
         
         function writeProblem(o, fileName)
@@ -277,12 +277,12 @@ classdef UtilityMaximizationProblem < matlab.mixin.Copyable
             UtilityMaximizationSolver( scaledProblem ).writeProblem(fileName);
         end
         
-        function [utility,quantities] = optimizeUnscaled(o)
+        function [utility,quantities,qp] = optimizeUnscaled(o)
             % Solve the optimization problem returning the expected
             % utility and the quantities that must be held. This operates
             % naively and doesn't consider rescaling
             solver = UtilityMaximizationSolver(o);
-            [utility,quantities] = solver.solve();
+            [utility,quantities,qp] = solver.solve();
         end
         
         function utility = utilityForQuantities(o, q)
