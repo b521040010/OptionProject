@@ -17,8 +17,19 @@ classdef BlackScholesModel < Model1D
        
         function [S, times] = simulatePricePaths( model, nPaths, nSteps )
             dt = model.T/nSteps;
-            dW = randn( nPaths/2, nSteps );
-            dW = [dW ; -dW];
+            rng(7)
+            p = haltonset(nSteps,'Skip',12,'Leap',1e2);
+            p = scramble(p,'RR2');
+            rn=net(p,nPaths);
+            dW=norminv(rn,0,1); 
+%             mean(dW)
+%             std(dW)
+
+%             %antithetic
+%             dW = randn( nPaths/2, nSteps );
+%             dW = [dW ; -dW];
+%             %usual
+%             dW = randn( nPaths, nSteps );
             ds = (model.mu - 0.5*model.sigma^2)*dt + model.sigma*sqrt(dt)*dW;
             s = log( model.S0 ) + cumsum(ds,2);
             S = horzcat(model.S0*ones(nPaths,1),exp(s));

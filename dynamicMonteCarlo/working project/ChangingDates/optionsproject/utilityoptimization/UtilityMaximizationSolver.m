@@ -98,7 +98,7 @@ classdef UtilityMaximizationSolver < handle
             for i=1:nInstruments                
                 payoffi = o.p.payoffi{i};
                 % Ignore worthless instruments
-                if max(abs(payoffi(o.scenarioFilter)))>0
+                if max(abs(payoffi(o.scenarioFilter)))>=0
                     o.indexToInstrument(count) = i;
                     o.indexToShort(count) = true;
                     o.indexToInstrument(count+1) = i;
@@ -109,7 +109,6 @@ classdef UtilityMaximizationSolver < handle
             
             % filtering out scenarios causes problems...
             o.scenarioFilter = o.p.logProb>-Inf;
-
             o.nq = length(o.indexToInstrument);
             o.nP = sum( o.scenarioFilter);
             o.sepProblem = SeparableProblem(o.nq + o.nP);
@@ -131,7 +130,6 @@ classdef UtilityMaximizationSolver < handle
                     assert( sum( totalPayoff>0 )==0 );
                 end
             end       
-            
             %%%%%%%%%%%%%%%%%%%%%
 %             temp=o.p.currentPosition.map;
 %             temp=values(temp);
@@ -146,6 +144,7 @@ classdef UtilityMaximizationSolver < handle
                 matr(i,i)=1;
             end
             payy=sparse(o.payoff);
+           % A=horzcat(o.payoff,eye(o.nP,o.nP))
             A = horzcat(-payy, matr);
             %A = horzcat(-o.payoff, matr);
             %A = horzcat(-o.payoff, eye(o.nP));
@@ -227,7 +226,6 @@ classdef UtilityMaximizationSolver < handle
                     o.sepProblem.bux(i)=0;
                 end
             end
-
             o.costVec = vec(1:o.nq);
 
 %             temp=values(o.p.currentPosition.map);
@@ -255,6 +253,7 @@ classdef UtilityMaximizationSolver < handle
             
 %             c=temp{2}.quantity
 %             d=temp{3}.quantity
+            %o.sepProblem.addLinearConstraint(vec,0,'Cost constraint');
             o.sepProblem.addLinearUpperBound(vec,0,'Cost constraint');
 
         end    
@@ -329,11 +328,11 @@ classdef UtilityMaximizationSolver < handle
             o.sepProblem.writeProblem( file );
         end
 
-        function [utility,quantities] = solve(o)
+        function [utility,quantities,qp] = solve(o)
             % Solve the problem computing the resulting utility and 
             % the quantities to hold of each instrument                        
             o.sepProblem.tolerance = o.p.tolerance;
-            [objective,qp] = o.sepProblem.optimize();      
+            [objective,qp] = o.sepProblem.optimize();  
 %            o.sepProblem.assertConstraintsPassed(qp,0.0001);
             utility = -objective + o.p.utilityFunction.getConstant();
             nInstruments = size(o.p.instruments,2);

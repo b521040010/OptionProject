@@ -1,3 +1,4 @@
+
 classdef Dynamic < matlab.mixin.Copyable
     
     properties
@@ -12,6 +13,9 @@ classdef Dynamic < matlab.mixin.Copyable
         currentState
         dateString
         histSpot
+        quantities
+        qp
+        s
     end
     
     methods
@@ -107,7 +111,15 @@ classdef Dynamic < matlab.mixin.Copyable
                 ump.addConstraint(QuantityConstraint(idx,-instrument.bidSize,instrument.askSize));
             end    
             ump.addConstraint( BoundedLiabilityConstraint());
-            [utility, quantities] = ump.optimize();
+            
+            prices = model.simulatePricePaths(90000,1);
+            scenarios = prices(:,end);
+            o.s = sort(scenarios);
+            
+            [utility, quantities,qp] = ump.optimize();
+            utility
+            o.quantities=quantities;
+            o.qp=qp;
             currentPort=(o.histPort.(previousDate));
             temp=values(currentPort.map);
             ii=cell(1,length(temp));
@@ -127,12 +139,18 @@ classdef Dynamic < matlab.mixin.Copyable
                 totalInvestment=0;
     for i = 1:length(ump.instruments)
         if quantities(i)>=0
+%             i
+%             ask=ump.instruments{i}.getAsk()
             totalInvestment = totalInvestment+quantities(i)*ump.instruments{i}.getAsk();
         else
+%             i
+%             bid=ump.instruments{i}.getBid()
             totalInvestment = totalInvestment+quantities(i)*ump.instruments{i}.getBid();
         end
     end
     totalInvestment
+    
+    newUtility=utility+(1-utility*0.00002)*(1-exp(0.00002*totalInvestment))/0.00002
 %     assert(totalInvestment<=50)
 %     assert(totalInvestment>=-1000)
             
@@ -143,11 +161,11 @@ classdef Dynamic < matlab.mixin.Copyable
 
             
                 %Test if buying and selling quantities are in [-bidSizes,askSizes]
-    for idx=1:length(ump.instruments)
-        instrument=ump.instruments{idx};
-        assert(quantities(idx)<=instrument.askSize);
-        assert(quantities(idx)>=-instrument.bidSize);
-    end
+%     for idx=1:length(ump.instruments)
+%         instrument=ump.instruments{idx};
+%         assert(quantities(idx)<=instrument.askSize);
+%         assert(quantities(idx)>=-instrument.bidSize);
+%     end
 
             
             

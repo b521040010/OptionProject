@@ -174,13 +174,13 @@ classdef UtilityMaximizationProblem1D < matlab.mixin.Copyable
         end
             
 
-        function [utility,quantities] = optimize(o)
+        function [utility,quantities,qp] = optimize(o)
             % Solve the optimization problem returning the expected
             % utility and the quantities that must be held. The first
             % task is create a multi dimensional optimizer and set its
             % quad rule
             o.delegate = createDelegate(o);
-            [utility,quantities ] = o.delegate.optimize();
+            [utility,quantities,qp ] = o.delegate.optimize();
         end
         
         
@@ -224,22 +224,22 @@ classdef UtilityMaximizationProblem1D < matlab.mixin.Copyable
                 % Create a multi dimensional optimizer
                 delegate= UtilityMaximizationProblem();
 
-                % Choose a good quadrature rule
-%                 wayPoints = o.getWayPoints()
+                %Choose a good quadrature rule
+%                 wayPoints = o.getWayPoints();
 %                 quadRule = QuadRule.adapted( @(x) o.model.pdf(x), wayPoints, o.model.getWayPoints() );
 %                 x = quadRule.x;
 %                 lp = log(quadRule.weights) + o.model.logPdf(x);
 %                 delegate.setQuadRule( x, lp );  
-                
+% %                 
 %                 o.model
-
-                prices = o.model.simulatePricePaths(100000,1);
+% 
+                prices = o.model.simulatePricePaths(90000,1);
                 scenarios = prices(:,end);
                 scenarios = sort(scenarios);
                 wayPoints = scenarios;
                 x = wayPoints;
-                weight = (1/length(wayPoints))*ones(1,length(wayPoints));
-                lp = log(weight)';
+                weights = (1/length(wayPoints))*ones(1,length(wayPoints));
+                lp = log(weights)';
                 delegate.setQuadRule( x, lp );
 
                 % Everything else is straightforward

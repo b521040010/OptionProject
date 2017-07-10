@@ -269,6 +269,9 @@ classdef UtilityMaximizationProblem < matlab.mixin.Copyable
             % task is to form an equivalent problem with good scaling
             % behaviour.
 %             
+%               [scaledProblem, scale] = o.createScaledProblem();
+%               [utility,scaledQuantities] = scaledProblem.optimizeUnscaled();
+%               quantities = scaledQuantities .* scale;
              [utility,quantities,qp] = o.optimizeUnscaled();
         end
         
