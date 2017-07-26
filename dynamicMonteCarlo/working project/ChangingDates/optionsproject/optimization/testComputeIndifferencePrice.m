@@ -4,7 +4,7 @@ function [indifferencePrice,sup,sub,quantities]=testComputeIndifferencePrice(ris
 
     initutilityoptimization();
     utilityFunction = ExponentialUtilityFunction( riskAversion );
-    date = 'D20160408T145500';
+    date = 'D20170117T150000';
     dayData = DayData( date );    
     %arbitrage = ArbitrageFinder.findArbitrageForDate( date, false, true );
     %assert(~arbitrage);
@@ -16,8 +16,8 @@ function [indifferencePrice,sup,sub,quantities]=testComputeIndifferencePrice(ris
     %For BS, we dont need to put log(S0) in there since we have a function
     %called logNormalParameters which will include log(S0) in mu later
 
-     model.sigma=0.0713045/sqrt(model.T);
-     model.mu=0.011272/model.T+0.5*model.sigma^2;
+%      model.sigma=0.0713045/sqrt(model.T);
+%      model.mu=0.011272/model.T+0.5*model.sigma^2;
 %     model
 
     %Student-T model
@@ -41,7 +41,7 @@ function [indifferencePrice,sup,sub,quantities]=testComputeIndifferencePrice(ris
         ump.addInstrument( dayData.instruments{i} );
     end
     
-    ump.addConstraint( BoundedLiabilityConstraint());
+    %ump.addConstraint( BoundedLiabilityConstraint());
 
 %      digitalCall=DigitalCallOption(K,1, 1.2 ,10,10)
     try
@@ -77,9 +77,21 @@ function [indifferencePrice,sup,sub,quantities]=testComputeIndifferencePrice(ris
 %      ump.addConstraint(QuantityConstraint(3,-Inf,0));
 %      ump.addConstraint(QuantityConstraint(4,0,Inf));
     for idx = 1:length(ump.instruments)
-        instrument=ump.instruments{idx};
-        ump.addConstraint(QuantityConstraint(idx,-instrument.bidSize,instrument.askSize));
-    end 
+                instrument=ump.instruments{idx};
+                 if isfinite(abs(instrument.bidSize))&&isfinite(abs(instrument.askSize))
+%                      if abs(instrument.bidSize)>50
+%                          instrument.bidSize=50;
+%                      end
+%                      if abs(instrument.askSize)>50
+%                          instrument.askSize=50;
+%                      end
+                ump.addConstraint(QuantityConstraint(idx,-instrument.bidSize,instrument.askSize));
+                 end
+%                 if isfinite(abs(instrument.bidSize))&&isfinite(abs(instrument.askSize))
+%                 idx;
+%                 ump.addConstraint(QuantityConstraint(idx,-50,51));
+%                 end
+             end    
       [indifferencePrice,quantities]= ump.indifferencePrice(zcb,quantity, call,quantity*8000);
 %     plotPortfolio( ump.getInstruments(), quantities)
 sup=0;

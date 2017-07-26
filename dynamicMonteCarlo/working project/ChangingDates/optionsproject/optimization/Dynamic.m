@@ -108,11 +108,23 @@ classdef Dynamic < matlab.mixin.Copyable
             end    
             for idx = 1:length(ump.instruments)
                 instrument=ump.instruments{idx};
+                 if isfinite(abs(instrument.bidSize))&&isfinite(abs(instrument.askSize))
+%                      if abs(instrument.bidSize)>50
+%                          instrument.bidSize=50;
+%                      end
+%                      if abs(instrument.askSize)>50
+%                          instrument.askSize=50;
+%                      end
                 ump.addConstraint(QuantityConstraint(idx,-instrument.bidSize,instrument.askSize));
-            end    
-            ump.addConstraint( BoundedLiabilityConstraint());
+                 end
+%                 if isfinite(abs(instrument.bidSize))&&isfinite(abs(instrument.askSize))
+%                 idx;
+%                 ump.addConstraint(QuantityConstraint(idx,-50,51));
+%                 end
+             end    
+            %ump.addConstraint( BoundedLiabilityConstraint());
             
-            prices = model.simulatePricePaths(90000,1);
+            prices = model.simulatePricePaths(1000000,1);
             scenarios = prices(:,end);
             o.s = sort(scenarios);
             

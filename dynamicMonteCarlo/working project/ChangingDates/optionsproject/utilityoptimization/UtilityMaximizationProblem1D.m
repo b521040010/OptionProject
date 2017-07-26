@@ -229,11 +229,20 @@ classdef UtilityMaximizationProblem1D < matlab.mixin.Copyable
 %                 quadRule = QuadRule.adapted( @(x) o.model.pdf(x), wayPoints, o.model.getWayPoints() );
 %                 x = quadRule.x;
 %                 lp = log(quadRule.weights) + o.model.logPdf(x);
-%                 delegate.setQuadRule( x, lp );  
+%                 j=1;
+%                 for i=1:length(x)
+%                 if exp(lp(i))>0
+%                     xx(j)=x(i);
+%                     lpp(j)=lp(i);
+%                     j=j+1;
+%                 end
+%                 end
+%                 delegate.setQuadRule( xx', lpp' );  
+
 % %                 
 %                 o.model
 % 
-                prices = o.model.simulatePricePaths(90000,1);
+                prices = o.model.simulatePricePaths(600000,1);
                 scenarios = prices(:,end);
                 scenarios = sort(scenarios);
                 wayPoints = scenarios;

@@ -269,9 +269,9 @@ classdef UtilityMaximizationProblem < matlab.mixin.Copyable
             % task is to form an equivalent problem with good scaling
             % behaviour.
 %             
-%               [scaledProblem, scale] = o.createScaledProblem();
-%               [utility,scaledQuantities] = scaledProblem.optimizeUnscaled();
-%               quantities = scaledQuantities .* scale;
+%                [scaledProblem, scale] = o.createScaledProblem();
+%                [utility,scaledQuantities] = scaledProblem.optimizeUnscaled();
+%                quantities = scaledQuantities .* scale;
              [utility,quantities,qp] = o.optimizeUnscaled();
         end
         
@@ -284,7 +284,7 @@ classdef UtilityMaximizationProblem < matlab.mixin.Copyable
             % Solve the optimization problem returning the expected
             % utility and the quantities that must be held. This operates
             % naively and doesn't consider rescaling
-            solver = UtilityMaximizationSolver(o);
+            solver = UtilityMaximizationSolverGeometric (o);
             [utility,quantities,qp] = solver.solve();
         end
         

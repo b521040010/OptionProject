@@ -3,7 +3,7 @@ classdef UtilityMaximizationConstraint
     %   Detailed explanation goes here
     
     methods (Abstract)        
-        applyConstraint( utilityMaximizationProblem, separableProblem )        
+        applyConstraint( utilityMaximizationProblem, geometricProblem )        
         % Apply the constraint to the separable problem
         
         rescale( factor)

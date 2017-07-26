@@ -18,7 +18,7 @@ classdef QuantityConstraint < UtilityMaximizationConstraint
             assert(max>=0);
         end
         
-        function applyConstraint( c, utilityMaximizationSolver, separableProblem ) 
+        function applyConstraint( c, utilityMaximizationSolver, geometricProblem ) 
         % Apply the constraint to the separable problem
             s = utilityMaximizationSolver;
             
@@ -26,9 +26,13 @@ classdef QuantityConstraint < UtilityMaximizationConstraint
             for i=indices
                 short = s.indexToShort(i);
                 if short
-                    separableProblem.bux(i) = -c.min;
-                else                    
-                    separableProblem.bux(i) = c.max;
+                    temp=zeros(1,s.nq+1);
+                    temp(i)=1;
+                    geometricProblem.addLinearUpperBound(temp,-c.min,'quantity constraint short');
+                else       
+                    temp=zeros(1,s.nq+1);
+                    temp(i)=1;
+                    geometricProblem.addLinearUpperBound(temp,c.max,'quantity constraint long');
                 end
             end
             

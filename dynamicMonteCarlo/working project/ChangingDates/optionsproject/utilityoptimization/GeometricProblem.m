@@ -46,7 +46,8 @@ classdef GeometricProblem < handle
             o.u=zeros(1,1);
             o.constraintDescription = cell(1,0);
             o.tolerance = 1e-10;
-            initMosek();            
+            initMosek();     
+%            o.scale=10;
         end
         
 %         function writeProblem( o, filename )
@@ -94,7 +95,7 @@ classdef GeometricProblem < handle
 
             assert(size(ao,2)==o.nVars)
             
-            assert(size(ao,2)==size(w,1))
+            assert(size(ao,1)==size(w,1))
             o.w = w;
 %             o.u = u;
 %             o.c = [o.w ;1./exp(o.u)];
@@ -107,6 +108,7 @@ classdef GeometricProblem < handle
          function total = computeObjective( o, x )
 %             % Compute the value of the objective function for a matrix
 %             % of x values. Each column should be a value of x
+
             total=log(sum(o.w.*exp(o.ao*x),1));
          end
         
@@ -133,8 +135,12 @@ classdef GeometricProblem < handle
 %             end
             for idx = findIndices( cValue > o.u+tolerance )
                 if (~isempty(idx))
-                    error('Upper bound on linear constraint %s failed: %d > %d', o.constraintDescription{idx}, cValue(idx), o.buc(idx));
+                    %error('Upper bound on linear constraint %s failed: %d > %d', o.constraintDescription{idx}, cValue(idx), o.buc(idx));
+                    o.constraintDescription{idx};
+                    error('Upper bound on linear constraint %s failed')
+                    
                 end
+                
             end
         end
 %         
@@ -161,7 +167,7 @@ classdef GeometricProblem < handle
             assert( size(A,1)==size(b,1)); % number of variables should match
             
             assert( sum(sum( isfinite(A)))==size(A,1)*size(A,2)); % No NaN values
-            assert( sum(isfinite(b))==size(b,1));% No NaN values
+%            assert( sum(isfinite(b))==size(b,1));% No NaN values
             
             currentNConstraints = size(o.ac,1);
              
@@ -181,57 +187,69 @@ classdef GeometricProblem < handle
         
         
         function [objective, x, res] = optimize(o) 
+            o.u;
+            1./exp(o.u);
+            for i=1:length(o.u)
+                if(o.u(i)>0)
+                    o.ac(i,:)=o.ac(i,:)./o.u(i);
+                    o.u(i)=1;
+                end
+            end
+            
+%             o.c = [o.w ;1./exp(o.u/o.scale)];
+%             o.a = [o.ao ; o.ac/o.scale];   
             o.c = [o.w ;1./exp(o.u)];
-            o.a = [o.ao ; o.ac];   
+            o.ac=sparse(o.ac);
+            o.a = [o.ao ; o.ac]; 
+            size(o.a);
             temp=1:1:size(o.ac,1);
             o.map = [zeros(size(o.w,1),1);temp'];
             assert(size(o.map,2)==1); 
             assert(size(o.u,2)==1);
-            assert(size(o.ac,2)==o.nVars)
+            assert(size(o.ac,2)==o.nVars);
 %             if (size(o.A,2))==0
 %                 error('You must add at least one linear constraint. This is because Mosek uses the constraint matrix A to determine the problem size');
 %             end
 %             
-%             param = [];            
-%              param.MSK_DPAR_INTPNT_NL_TOL_REL_GAP = 10^(-3);
-%              param.MSK_DPAR_INTPNT_CO_TOL_DFEAS=10^(-12);
-%             param.MSK_IPAR_INTPNT_MAX_ITERATIONS = 100000000;
-%             param.MSK_IPAR_LOG = 0;
-%             [res] = mskscopt(o.opr,o.opri,o.oprj,o.oprf,o.oprg,o.c,o.A,o.blc,o.buc,o.blx, o.bux, param);                         
-%             if (~strcmp(res.sol.itr.solsta,'OPTIMAL') ...
-%                 && ~strcmp(res.sol.itr.solsta,'NEAR_OPTIMAL'))
-%                 % Repeat the optimization with debug information
-%                 param.MSK_IPAR_LOG = 10;
-%                 mskscopt(o.opr,o.opri,o.oprj,o.oprf,o.oprg,o.c,o.A,o.blc,o.buc,o.blx, o.bux, param);                                     
-%                 error('Unable to find solution to optimization problem: %s',res.sol.itr.solsta);
-%             end
+            param = [];            
+           %  param.MSK_DPAR_INTPNT_NL_TOL_REL_GAP = 10^(-16);
+            % param.MSK_DPAR_INTPNT_CO_TOL_DFEAS=10^(-16);
+           % param.MSK_IPAR_INTPNT_MAX_ITERATIONS = 100000000;
+            param.MSK_IPAR_LOG = 0;
+            [res] = mskgpopt(o.c,o.a,o.map);   
+            if (~strcmp(res.sol.itr.solsta,'OPTIMAL') ...
+                && ~strcmp(res.sol.itr.solsta,'NEAR_OPTIMAL'))
+                % Repeat the optimization with debug information
+                param.MSK_IPAR_LOG = 10;
+                mskscopt(o.opr,o.opri,o.oprj,o.oprf,o.oprg,o.c,o.A,o.blc,o.buc,o.blx, o.bux, param);                                     
+                error('Unable to find solution to optimization problem: %s',res.sol.itr.solsta);
+            end
 %             x = res.sol.itr.xx;
 %             objective = res.sol.itr.pobjval;
-
-            [res] = mskgpopt(o.c,o.a,o.map);        
+     
             x=res.sol.itr.xx;
             objective = o.computeObjective(x);
         end
     end
     
-    methods (Static)
-        function term = sepEval( oprName, xj, f, g )
-        % Evaluate a separable function
-            switch oprName
-                case 'ent'
-                    term = f .* xj .* log(xj );
-                case 'exp'
-                    term = f .* exp( g.* xj );
-                case 'log'
-                    term = f .* log( xj );
-                case 'pow'
-                    term = f .* xj.^g;
-                otherwise
-                    error('Invalid function: %s',oprName);
-            end
-        end            
-    end
-    
+%     methods (Static)
+%         function term = sepEval( oprName, xj, f, g )
+%         % Evaluate a separable function
+%             switch oprName
+%                 case 'ent'
+%                     term = f .* xj .* log(xj );
+%                 case 'exp'
+%                     term = f .* exp( g.* xj );
+%                 case 'log'
+%                     term = f .* log( xj );
+%                 case 'pow'
+%                     term = f .* xj.^g;
+%                 otherwise
+%                     error('Invalid function: %s',oprName);
+%             end
+%         end            
+%     end
+%     
 end
 
 function ret = findIndices( vec )
