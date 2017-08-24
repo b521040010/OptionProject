@@ -187,8 +187,6 @@ classdef GeometricProblem < handle
         
         
         function [objective, x, res] = optimize(o) 
-            o.u;
-            1./exp(o.u);
             for i=1:length(o.u)
                 if(o.u(i)>0)
                     o.ac(i,:)=o.ac(i,:)./o.u(i);
@@ -216,14 +214,18 @@ classdef GeometricProblem < handle
             % param.MSK_DPAR_INTPNT_CO_TOL_DFEAS=10^(-16);
            % param.MSK_IPAR_INTPNT_MAX_ITERATIONS = 100000000;
             param.MSK_IPAR_LOG = 0;
-            [res] = mskgpopt(o.c,o.a,o.map);   
-            if (~strcmp(res.sol.itr.solsta,'OPTIMAL') ...
-                && ~strcmp(res.sol.itr.solsta,'NEAR_OPTIMAL'))
-                % Repeat the optimization with debug information
-                param.MSK_IPAR_LOG = 10;
-                mskscopt(o.opr,o.opri,o.oprj,o.oprf,o.oprg,o.c,o.A,o.blc,o.buc,o.blx, o.bux, param);                                     
-                error('Unable to find solution to optimization problem: %s',res.sol.itr.solsta);
-            end
+            toc
+            tic
+            
+            [res] = mskgpopt(o.c,o.a,o.map); 
+            toc
+%             if (~strcmp(res.sol.itr.solsta,'OPTIMAL') ...
+%                 && ~strcmp(res.sol.itr.solsta,'NEAR_OPTIMAL'))
+%                 % Repeat the optimization with debug information
+%                 param.MSK_IPAR_LOG = 10;
+%                 mskscopt(o.opr,o.opri,o.oprj,o.oprf,o.oprg,o.c,o.A,o.blc,o.buc,o.blx, o.bux, param);                                     
+%                 error('Unable to find solution to optimization problem: %s',res.sol.itr.solsta);
+%             end
 %             x = res.sol.itr.xx;
 %             objective = res.sol.itr.pobjval;
      

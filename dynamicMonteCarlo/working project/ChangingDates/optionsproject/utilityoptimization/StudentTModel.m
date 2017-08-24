@@ -47,6 +47,19 @@ classdef StudentTModel < Model1D
             m.T = T;
 
         end
+
+        function [S, times] = simulatePricePaths( model, nPaths, nSteps )
+            if nSteps>1
+                error('the code for nSteps > 1 has not been written.')
+            end
+            %dt = model.T/nSteps;
+             p = haltonset(1,'Skip',2);
+            rn=net(p,nPaths);
+            s=icdf('tLocationScale',rn,model.mu,model.sigma,model.nu);
+            
+            S = horzcat(model.S0*ones(nPaths,1),exp(s));
+            times = linspace(0,model.T,nSteps+1);
+        end
         
         function returns=getReturns(m)
             %open file SPX Index and get return form (log(ST/S0))

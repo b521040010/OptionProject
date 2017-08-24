@@ -71,7 +71,7 @@ classdef QuadRule
             points = sort( unique( points ));
             start = points(1);
             for i=1:(length(points)-1)
-                quadRules(i) = QuadRule.gaussLegendre(10,start,points(i+1));
+                quadRules(i) = QuadRule.gaussLegendre(5,start,points(i+1));
                 %val = quadRules(i).integrate(pdf);
                 %if (val<1e-6)
                 %    quadRules(i)=QuadRule.gaussLegendre(1,start,points(i+1));

@@ -226,23 +226,26 @@ classdef UtilityMaximizationProblem1D < matlab.mixin.Copyable
 
                 %Choose a good quadrature rule
 %                 wayPoints = o.getWayPoints();
+%                 wayPoints = 100:5:3000;
 %                 quadRule = QuadRule.adapted( @(x) o.model.pdf(x), wayPoints, o.model.getWayPoints() );
 %                 x = quadRule.x;
 %                 lp = log(quadRule.weights) + o.model.logPdf(x);
 %                 j=1;
+%  %               delegate.setQuadRule( x, lp );
 %                 for i=1:length(x)
 %                 if exp(lp(i))>0
 %                     xx(j)=x(i);
 %                     lpp(j)=lp(i);
 %                     j=j+1;
+%                     
 %                 end
 %                 end
 %                 delegate.setQuadRule( xx', lpp' );  
 
 % %                 
 %                 o.model
-% 
-                prices = o.model.simulatePricePaths(600000,1);
+
+                prices = o.model.simulatePricePaths(50000,1);
                 scenarios = prices(:,end);
                 scenarios = sort(scenarios);
                 wayPoints = scenarios;

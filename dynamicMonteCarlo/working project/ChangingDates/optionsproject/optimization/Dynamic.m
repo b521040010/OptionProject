@@ -38,12 +38,13 @@ classdef Dynamic < matlab.mixin.Copyable
         end
         
         function o=run(o)
-            o=o.prepareTheDates;
             tic
+            o=o.prepareTheDates;
+            
             for i=2 : size(o.dateString,1)
                 o=o.reoptimize;
                 o.currentState=o.currentState+1;
-                toc
+             
                
             end 
             
@@ -89,11 +90,16 @@ classdef Dynamic < matlab.mixin.Copyable
             date = o.dateString(o.currentState,:);
             previousDate=o.dateString(o.currentState-1,:);
             dayData = DayData( date );
-            model = dayData.blackScholesModel();
-            %model.mu = 0.5*model.sigma^2;
-            model.mu=0;
+%             model = dayData.blackScholesModel();
+%             %model.mu = 0.5*model.sigma^2;
+%             model.mu=0;
 %             model.sigma=0.05;
-            model
+%            model
+             model= dayData.studentTModel();
+             model.sigma=0.0553835;
+             model.mu=0.0173861+log(model.S0);
+             model.nu=4.83548;
+%             model
 %             arbitrage = ArbitrageFinder.findArbitrageForDate( date, false, true );
 %             assert(~arbitrage);    
             ump = UtilityMaximizationProblem1D();
@@ -124,9 +130,9 @@ classdef Dynamic < matlab.mixin.Copyable
              end    
             %ump.addConstraint( BoundedLiabilityConstraint());
             
-            prices = model.simulatePricePaths(1000000,1);
-            scenarios = prices(:,end);
-            o.s = sort(scenarios);
+%             prices = model.simulatePricePaths(1000000,1);
+%             scenarios = prices(:,end);
+%             o.s = sort(scenarios);
             
             [utility, quantities,qp] = ump.optimize();
             utility
@@ -179,7 +185,6 @@ classdef Dynamic < matlab.mixin.Copyable
 %         assert(quantities(idx)>=-instrument.bidSize);
 %     end
 
-            
             
             
             

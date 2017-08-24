@@ -74,7 +74,7 @@ classdef UtilityMaximizationSolverGeometric < handle
         function o = UtilityMaximizationSolverGeometric( p )
             o.p = p;
             o.logProbCutoff = log(1e-9);
-   %         o.logProbCutoff = -100;
+     %       o.logProbCutoff = -1;
             o.selectScenariosAndInstruments();
             %o.computeObjectiveFunction();
             o.addCostConstraint();
@@ -260,7 +260,7 @@ classdef UtilityMaximizationSolverGeometric < handle
             log(sum(o.geoProblem.w.*exp(o.geoProblem.ao*qp),1));
             o.geoProblem.computeObjective(qp);
             o.geoProblem.assertConstraintsPassed(qp,0.001);
-            utility=-objective;
+            utility=objective;
             %utility = -exp(objective)/0.00002 + o.p.utilityFunction.getConstant();
             nInstruments = size(o.p.instruments,2);
             quantities = zeros(nInstruments,1);
